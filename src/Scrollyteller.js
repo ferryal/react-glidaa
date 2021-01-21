@@ -1,20 +1,16 @@
 /** @jsx jsx */
-import { Component, createRef, useEffect, useState, useRef } from 'react';
+import { Component, createRef, useEffect, useState, useRef, useCallback } from 'react';
 import { css, jsx } from '@emotion/core';
 import { Card } from "react-bootstrap";
 import { Scrollama, Step } from 'react-scrollama';
 // import Lottie from 'react-lottie';
 import Tabletop from "tabletop";
+import scrollama from 'scrollama';
 // import Lottie from 'lottie-react-web';
 // import "@lottiefiles/lottie-player";
 import '@lottiefiles/lottie-player';
 import { create } from '@lottiefiles/lottie-interactivity';
 // import { Lottie } from './components/Lottie';
-import anime from './assets/animation/1.json'
-import animeTwo from './assets/animation/2.json'
-import animeThree from './assets/animation/3.json'
-import animeFour from './assets/animation/4.json'
-import animeFive from './assets/animation/3.json'
 
 const narration = require("./assets/data/narration.json");
 
@@ -99,63 +95,105 @@ const introBlurb = (
 
 
 function Scrollyteller() {
-  // constructor(props) {
-  //   super(props);
-  //   this.myRef = createRef();
-  //   this.state = {
-  //     data: "1",
-  //     progress: 0,
-  //     src: "",
-  //     items: []
-  //   }
-    
-  // }
   const [data, setData] = useState('1');
   const [progress, setProgress] = useState(0);
   const [src, setSrc] = useState('');
   const [items, setItems] = useState([]);
-  const myRef = useRef(null);
-  const inputRef = useRef(null);
+  const oneRef = useRef(null);
+  const twoRef = useRef(null);
+  const threeRef = useRef(null);
+  const fourRef = useRef(null);
+  const fiveRef = useRef(null);
+
 
 
   useEffect(() => {
-    Tabletop.init({key: "https://docs.google.com/spreadsheets/d/1EDvVinkf7BhEnctM0BrWU3WtXW4LuQoXYAM67qDRHZ8/edit?usp=sharing",simpleSheet: true}).then((items) => {console.log(items); this.setState({ items: items})}).catch((err) => console.warn(err));
+    Tabletop.init({key: "https://docs.google.com/spreadsheets/d/1EDvVinkf7BhEnctM0BrWU3WtXW4LuQoXYAM67qDRHZ8/edit?usp=sharing",simpleSheet: true}).then((items) => {console.log(items); setItems({ items })}).catch((err) => console.warn(err));
   }, [])
+
+  useEffect(() => {
+    // instantiate the scrollama
+    const scroller = scrollama();
+
+    // setup the instance, pass callback functions
+    scroller
+      .setup({
+        step: '.step',
+      })
+      .onStepEnter((response) => {
+        // { element, index, direction }
+        if (response.index === 1) {
+          response.element.style.background = 'coral';
+        } else if (response.index === 2) {
+          response.element.style.background = 'green';
+        } else {
+          response.element.style.background = 'grey';
+        }
+      })
+      .onStepExit((response) => {
+        if (response.index === 1) {
+          response.element.style.background = 'white';
+        } else if (response.index === 2) {
+          response.element.style.background = 'white';
+        } else {
+          response.element.style.background = 'white';
+        }
+      });
+
+    // setup resize event
+    window.addEventListener('resize', scroller.resize);
+
+    return () => window.removeEventListener('resize', scroller.resize);
+  }, []);
+
 
 
   useEffect(() => {
     if (data === '1') {
-      console.log('MASUK 1')
-      myRef.current.addEventListener('load', function (e) {
-          // 4. configure the interactivity library
-          create({
-            mode: 'scroll',
-            player: `#firstLottie`,
-            actions: [
-              {
-                visibility: [0, 1],
-                type: 'seek',
-                frames: [0, 100],
-              },
-            ],
-          });
-        }, {once: true});
+      oneRef.current.addEventListener('load', function (e) {
+        create({ mode: 'scroll', player: `#firstLottie`,
+          actions: [{
+              visibility: [0, 1],
+              type: 'seek',
+              frames: [0, 500],
+            }],
+        })});
     } else if (data === '2') {
-      console.log('MASUK 2')
-      myRef.current.addEventListener('load', function (e) {
-        // 4. configure the interactivity library
-        create({
-          mode: 'scroll',
-          player: `#twoLottie`,
-          actions: [
-            {
+      twoRef.current.addEventListener('load', function (e) {
+        create({ mode: 'scroll', player: `#twoLottie`,
+          actions: [{
               visibility: [0, 1],
               type: 'seek',
               frames: [0, 100],
-            },
-          ],
-        });
-      });
+            }],
+        })});
+    } else if (data === '3') {
+      threeRef.current.addEventListener('load', function (e) {
+        create({ mode: 'scroll', player: `#threeLottie`,
+          actions: [{
+              visibility: [0, 1],
+              type: 'seek',
+              frames:  [0, 100],
+            }],
+        })});
+    } else if (data === '4') {
+      fourRef.current.addEventListener('load', function (e) {
+        create({ mode: 'scroll', player: `#fourLottie`,
+          actions: [{
+              visibility: [0, 1],
+              type: 'seek',
+              frames: [0, 100],
+            }],
+        })});
+    } else if (data === '5') {
+      fiveRef.current.addEventListener('load', function (e) {
+        create({ mode: 'scroll', player: `#fiveLottie`,
+          actions: [{
+              visibility: [0, 1],
+              type: 'seek',
+              frames: [0, 100],
+            }],
+        })});
     }
   }, [data])
 
@@ -166,15 +204,49 @@ function Scrollyteller() {
   }
 
 
-  const onStepEnter = ({ element, data }) => {
+  const onStepEnter = ({ data }) => {
+    if (data === '1') {
+      document.getElementById("firstLottie").style.display = "block";
+      document.getElementById("threeLottie").style.display = "none";
+      document.getElementById("fourLottie").style.display = "none";
+      document.getElementById("twoLottie").style.display = "none";
+      document.getElementById("fiveLottie").style.display = "none";
+    } else if (data === '2') {
+      document.getElementById("firstLottie").style.display = "none";
+      document.getElementById("threeLottie").style.display = "none";
+      document.getElementById("fourLottie").style.display = "none";
+      document.getElementById("twoLottie").style.display = "block";
+      document.getElementById("fiveLottie").style.display = "none";
+    } else if (data === '3') {
+      document.getElementById("firstLottie").style.display = "none";
+      document.getElementById("threeLottie").style.display = "block";
+      document.getElementById("fourLottie").style.display = "none";
+      document.getElementById("twoLottie").style.display = "none";
+      document.getElementById("fiveLottie").style.display = "none";
+    } else if (data === '4') {
+      document.getElementById("firstLottie").style.display = "none";
+      document.getElementById("threeLottie").style.display = "none";
+      document.getElementById("fourLottie").style.display = "block";
+      document.getElementById("twoLottie").style.display = "none";
+      document.getElementById("fiveLottie").style.display = "none";
+    } else if (data === '5') {
+      document.getElementById("firstLottie").style.display = "none";
+      document.getElementById("threeLottie").style.display = "none";
+      document.getElementById("fourLottie").style.display = "none";
+      document.getElementById("twoLottie").style.display = "none";
+      document.getElementById("fiveLottie").style.display = "block";
+    }
     setData(data)
     update(data);
+    setProgress(0);
     // this.setState( { data });
-    console.log(typeof data)
+    // console.log(data)
     //this.update(data);
   }
 
   const onStepExit= ({ element }) => {
+    // console.log(element)
+    setProgress(0);
     element.style.backgroundColor = '#fff';
   }
 
@@ -185,79 +257,8 @@ function Scrollyteller() {
     // this.setState({ progress });
   }
 
-  
-
-  const renderAnimation = () => {
-    const animation = {
-      1: 'https://assets10.lottiefiles.com/private_files/lf30_pKg5bm.json',
-      2: 'https://assets9.lottiefiles.com/packages/lf20_ntnh0s55.json',
-      3: 'https://assets9.lottiefiles.com/packages/lf20_9wjm14ni.json',
-      4: 'https://assets9.lottiefiles.com/packages/lf20_Fh701N.json',
-      5: 'https://assets9.lottiefiles.com/packages/lf20_ntnh0s55.json'
-    }
-    console.log(data)
-    console.log(typeof data)
-    if (data === '1') {
-      return (
-        <lottie-player
-          ref={myRef} // 2. set the reference for the player
-          id="firstLottie"
-          controls
-          mode="normal"
-          src={animation[2]}
-          style={{ width: '320px' }}
-        ></lottie-player>
-      );
-    } else if (data === '2') {
-      console.log("MASUK 2 LOTTIE")
-      return (
-        <lottie-player
-          ref={myRef} // 2. set the reference for the player
-          id="twoLottie"
-          controls
-          mode="normal"
-          src={animation[1]}
-          style={{ width: '320px' }}
-        ></lottie-player>
-      );
-    } else if (data === '3') {
-      return (
-        <lottie-player
-          ref={myRef} // 2. set the reference for the player
-          id="threeLottie"
-          controls
-          mode="normal"
-          src={animation[2]}
-          style={{ width: '320px' }}
-        ></lottie-player>
-      );
-    } else if (data === '4') {
-      return (
-        <lottie-player
-          ref={myRef} // 2. set the reference for the player
-          id="fourLottie"
-          controls
-          mode="normal"
-          src={animation[2]}
-          style={{ width: '320px' }}
-        ></lottie-player>
-      );
-    } else if (data === '5') {
-      return (
-        <lottie-player
-          ref={myRef} // 2. set the reference for the player
-          id="fivrLottie"
-          controls
-          mode="normal"
-          src={animation[2]}
-          style={{ width: '320px' }}
-        ></lottie-player>
-      );
-    }
-  }
-
     // const { data, items } = this.state;
-    console.log(myRef)
+    // console.log(myRef)
     // const src = './assets/images/' + data + '.png';
     // const src = './assets/animation/' + data + '.json';
     // console.log(src)
@@ -265,19 +266,10 @@ function Scrollyteller() {
       1: 'https://assets9.lottiefiles.com/packages/lf20_ntnh0s55.json',
       2: 'https://assets9.lottiefiles.com/packages/lf20_Fh701N.json',
       3: 'https://assets1.lottiefiles.com/datafiles/HN7OcWNnoqje6iXIiZdWzKxvLIbfeCGTmvXmEm1h/data.json',
-      4: 'https://assets9.lottiefiles.com/packages/lf20_Fh701N.json',
-      5: 'https://assets10.lottiefiles.com/private_files/lf30_pKg5bm.json'
+      4: 'https://assets9.lottiefiles.com/packages/lf20_ntnh0s55.json',
+      5: 'https://assets9.lottiefiles.com/packages/lf20_9wjm14ni.json'
     }
     // console.log(animation[1]);
-
-    const defaultOptions = {
-      loop: true,
-      autoplay: true,
-      animationData: data === 1 ? anime : data === 2 ? animeTwo : data === 3 ? animeThree : data === 4 ? animeFour : animeFive,
-      rendererSettings: {
-        preserveAspectRatio: 'xMidYMid slice'
-      }
-    };
 
     return (
       <div>
@@ -291,32 +283,11 @@ function Scrollyteller() {
           </div>
           <div className='main'>
             <div className='graphic'>
-            
-    {/*<Card.Img variant="top" src={require(`./assets/images/${this.state.data}.png`)}/> */}
-
-                {/*<lottie-player
-                    ref={this.myRef} // 2. set the reference for the player
-                    id="firstLottie"
-                    controls
-                    mode="normal"
-                    src={`./assets/animation/${this.state.data}.json`}
-                    style={{ width: '320px' }}
-                  ></lottie-player>*/}
-
-              {/*<Lottie
-                options={{
-                  animationData: animeFour
-                }}
-              />*/}
-              <lottie-player
-                ref={myRef} // 2. set the reference for the player
-                id="firstLottie"
-                // controls
-                mode="normal"
-                src={animation[1]}
-                style={{ width: '1000px' }}
-              ></lottie-player>
-              
+              <lottie-player ref={oneRef} id="firstLottie" controls mode="normal"src={animation[1]} style={{ width: '1000px' }}></lottie-player>
+              <lottie-player ref={twoRef} id="twoLottie" controls mode="normal"src={animation[2]} style={{ width: '1000px' }}></lottie-player>
+              <lottie-player ref={threeRef} id="threeLottie" controls mode="normal"src={animation[3]} style={{ width: '1000px' }}></lottie-player>
+              <lottie-player ref={fourRef} id="fourLottie" controls mode="normal"src={animation[4]} style={{ width: '1000px' }}></lottie-player>
+              <lottie-player ref={fiveRef} id="fiveLottie" controls mode="normal"src={animation[2]} style={{ width: '1000px' }}></lottie-player>
             
             </div>
             <div className='scroller'>
